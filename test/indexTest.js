@@ -1,5 +1,7 @@
-require ( './root.js' );
+require('./root.js');
 
+// Import functions from index.js
+const { introduction, introductionWithLanguage, introductionWithLanguageOptional } = require("../index");
 
 describe('introduction(name)', function() {
   it('takes in an argument of a name and returns a phrase with that name using string interpolation', function() {
@@ -26,3 +28,4 @@ describe('introductionWithLanguageOptional(name, language)', function() {
     expect(introductionWithLanguageOptional("Gracie", "Python")).toEqual("Hi, my name is Gracie and I am learning to program in Python.");
   })
 })
+

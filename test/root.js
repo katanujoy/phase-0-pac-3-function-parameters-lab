@@ -1,30 +1,32 @@
 global.expect = require('expect');
 
-const babel = require('babel-core');
-const jsdom = require('jsdom');
-const path = require('path');
+const babel = require("@babel/core");
+const { JSDOM } = require("jsdom"); // Use JSDOM instead of jsdom.env
+const path = require("path");
+const fs = require("fs");
 
-before(function(done) {
+before(function (done) {
   const babelResult = babel.transformFileSync(
-    path.resolve(__dirname, '..', 'index.js'), {
-      presets: ['es2015']
-    }
+    path.resolve(__dirname, "..", "index.js"),
+    { presets: ["@babel/preset-env"] } // Use @babel/preset-env
   );
 
-  const html = path.resolve(__dirname, '..', 'index.html')
+  const html = fs.readFileSync(path.resolve(__dirname, "..", "index.html"), "utf8");
 
-  jsdom.env(html, [], {
-    src: babelResult.code,
-    virtualConsole: jsdom.createVirtualConsole().sendTo(console)
-  }, (err, window) => {
-    if (err) {
-      return done(err);
-    }
-
-    Object.keys(window).forEach(key => {
-      global[key] = window[key];
-    });
-
-    return done();
+  const dom = new JSDOM(html, {
+    runScripts: "dangerously",
+    resources: "usable"
   });
+
+  // Attach JSDOM window to global scope
+  global.window = dom.window;
+  global.document = dom.window.document;
+
+  Object.keys(dom.window).forEach(key => {
+    if (typeof global[key] === "undefined") {
+      global[key] = dom.window[key];
+    }
+  });
+
+  done();
 });
